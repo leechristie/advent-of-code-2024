@@ -1,4 +1,4 @@
-# build directories
+# C/C++ build directories
 /aoc24c*/cmake-build-*
 
 # macOS
