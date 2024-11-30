@@ -1,8 +1,34 @@
+// Advent of Code 2024
+// Dr Lee A. Christie
+//
+// GitHub:   @leechristie
+// Mastodon: @0x1ac@techhub.social
+// Website:  leechristie.com
+
 #include <stdio.h>
+#include <string.h>
 
-int main(void) {
+#include "days.h"
 
-    printf("Hello, Advent of Code 2024!\n");
+int main(const int argc, const char * argv[]) {
+
+    if (argc < 2) {
+        fputs("missing argument\n", stderr);
+        return 1;
+    }
+    if (argc > 2) {
+        fputs("too many arguments\n", stderr);
+        return 1;
+    }
+
+    const char * day = argv[1];
+
+    if (strcmp(day, "1") == 0) {
+        day01();
+    } else {
+        fprintf(stderr, "invalid day number \"%s\"", day);
+        return 1;
+    }
 
     return 0;
 
