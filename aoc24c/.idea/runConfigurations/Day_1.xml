@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Day 1" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="1" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$/../input" PASS_PARENT_ENVS_2="true" PROJECT_NAME="aoc24c" TARGET_NAME="aoc24c" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="aoc24c" RUN_TARGET_NAME="aoc24c">
+    <method v="2">
+      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+    </method>
+  </configuration>
+</component>
