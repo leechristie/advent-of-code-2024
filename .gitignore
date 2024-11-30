@@ -1,2 +1,5 @@
+# build directories
+/aoc24c*/cmake-build-*
+
 # macOS
 .DS_Store
