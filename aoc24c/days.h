@@ -8,6 +8,6 @@
 #ifndef DAYS_H
 #define DAYS_H
 
-void day01();
+int day01();
 
 #endif //DAYS_H

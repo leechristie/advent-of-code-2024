@@ -24,12 +24,10 @@ int main(const int argc, const char * argv[]) {
     const char * day = argv[1];
 
     if (strcmp(day, "1") == 0) {
-        day01();
-    } else {
-        fprintf(stderr, "invalid day number \"%s\"", day);
-        return 1;
+        return day01();
     }
 
-    return 0;
+    fprintf(stderr, "invalid day number \"%s\"", day);
+    return 1;
 
 }

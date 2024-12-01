@@ -9,4 +9,7 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${COMMON_FLAGS} -g0 -O3")
 
 add_executable(aoc24c main.c
         day01.c
-        days.h)
+        days.h
+        list.h
+        io.h
+        fatal.h)
