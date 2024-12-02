@@ -10,6 +10,7 @@
 #include "days.h"
 #include "list.h"
 #include "io.h"
+#include "timing.h"
 
 static void read_lists(FILE * file, IntList * const left, IntList * const right) {
     int value;
@@ -50,8 +51,7 @@ static int sum_similarity_scores(const IntList * const left, const IntList * con
 
 int day01() {
 
-    printf("Advent of Code 2024\n");
-    printf("Day 1\n");
+    start_timer();
 
     FILE * file = fopen("input01.txt", "r");
     if (file == NULL) {
@@ -71,14 +71,18 @@ int day01() {
     IntList_Sort(&right);
 
     const int part1 = sum_abs_differences(&left, &right);
-    printf("Part 1: %d\n", part1);
 
     const int part2 = sum_similarity_scores(&left, &right);
-    printf("Part 2: %d\n", part2);
 
     IntList_DeInit(&left);
     IntList_DeInit(&right);
 
+    const double time = stop_timer();
+    printf("Advent of Code 2024\n");
+    printf("Day 1 - Historian Hysteria\n");
+    printf("Part 1: %d\n", part1);
+    printf("Part 2: %d\n", part2);
+    printf("Time Taken: %.6f s\n", time);
     return 0;
 
 }

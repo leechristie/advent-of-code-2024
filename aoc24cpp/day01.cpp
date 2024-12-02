@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "days.hpp"
+#include "timing.hpp"
 
 static void read_lists(std::ifstream & file, std::vector<int> & left_list, std::vector<int> & right_list) {
 
@@ -54,23 +55,33 @@ static int sum_similarity_scores(const std::vector<int> & left, const std::vecto
 
 void day01() {
 
-    std::ifstream file {"input01.txt"};
+    start_timer();
 
-    std::vector<int> left;
-    std::vector<int> right;
+    int part1;
+    int part2;
+    {
 
-    read_lists(file, left, right);
-    assert(left.size() == right.size());
+        std::ifstream file {"input01.txt"};
 
-    std::ranges::sort(left);
-    std::ranges::sort(right);
+        std::vector<int> left;
+        std::vector<int> right;
 
-    const int part1 = sum_abs_differences(left, right);
-    const int part2 = sum_similarity_scores(left, right);
+        read_lists(file, left, right);
+        assert(left.size() == right.size());
 
+        std::ranges::sort(left);
+        std::ranges::sort(right);
+
+        part1 = sum_abs_differences(left, right);
+        part2 = sum_similarity_scores(left, right);
+
+    }
+
+    const double time = stop_timer();
     std::cout << "Advent of Code 2024" << std::endl;
-    std::cout << "Day 1" << std::endl;
+    std::cout << "Day 1 - Historian Hysteria" << std::endl;
     std::cout << "Part 1: " << part1 << std::endl;
     std::cout << "Part 2: " << part2 << std::endl;
+    std::cout << "Time Taken: " << std::fixed << std::setprecision(6) << time << " s" << std::endl;
 
 }

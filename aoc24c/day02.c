@@ -10,6 +10,7 @@
 #include "days.h"
 #include "io.h"
 #include "list.h"
+#include "timing.h"
 
 #define NO_IGNORED_INDEX (-1)
 
@@ -97,7 +98,7 @@ bool unsafe_report_is_repairable(IntList * report) {
         return true;
     }
 
-    // BRUTE FORCE SOLUTION - TO IMPROVE
+    // brute force solution
     for (size_t i = 0; i < report->length; i++) {
         if (report_is_safe(report, (ssize_t) i)) {
             return true;
@@ -107,10 +108,10 @@ bool unsafe_report_is_repairable(IntList * report) {
 
 }
 
+
 int day02() {
 
-    printf("Advent of Code 2024\n");
-    printf("Day 2\n");
+    start_timer();
 
     FILE * file = fopen("input02.txt", "r");
     if (file == NULL) {
@@ -137,9 +138,12 @@ int day02() {
     fclose(file);
     IntList_DeInit(&report);
 
+    const double time = stop_timer();
+    printf("Advent of Code 2024\n");
+    printf("Day 2 - Red-Nosed Reports\n");
     printf("Part 1: %d\n", part1);
     printf("Part 2: %d\n", part2);
-
+    printf("Time Taken: %.6f s\n", time);
     return 0;
 
 }

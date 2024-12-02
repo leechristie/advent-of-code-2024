@@ -11,6 +11,7 @@
 #include <sstream>
 
 #include "days.hpp"
+#include "timing.hpp"
 
 static bool read_report(std::ifstream & file, std::string buffer, std::vector<int> & report) {
 
@@ -98,7 +99,7 @@ bool unsafe_report_is_repairable(const std::vector<int> & report) {
         return true;
     }
 
-    // BRUTE FORCE SOLUTION - TO IMPROVE
+    // brute force solution
     for (std::vector<int>::size_type i = 0; i < report.size(); i++) {
         if (report_is_safe(report, i)) {
             return true;
@@ -109,27 +110,38 @@ bool unsafe_report_is_repairable(const std::vector<int> & report) {
 }
 
 void day02() {
-    std::ifstream file {"input02.txt"};
 
-    std::string buffer;
-    std::vector<int> report;
+    start_timer();
 
-    int part1 = 0;
-    int part2 = 0;
-    while (read_report(file, buffer, report)) {
-        const bool safe = report_is_safe(report);
-        if (safe) {
-            part1++;
-            part2++;
-        } else {
-            if (const bool repairable = unsafe_report_is_repairable(report))
+    int part1;
+    int part2;
+    {
+
+        part1 = 0;
+        part2 = 0;
+
+        std::ifstream file {"input02.txt"};
+
+        std::string buffer;
+        std::vector<int> report;
+        while (read_report(file, buffer, report)) {
+            const bool safe = report_is_safe(report);
+            if (safe) {
+                part1++;
                 part2++;
+            } else {
+                if (unsafe_report_is_repairable(report))
+                    part2++;
+            }
         }
+
     }
 
+    const double time = stop_timer();
     std::cout << "Advent of Code 2024" << std::endl;
-    std::cout << "Day 1" << std::endl;
+    std::cout << "Day 2 - Red-Nosed Reports" << std::endl;
     std::cout << "Part 1: " << part1 << std::endl;
     std::cout << "Part 2: " << part2 << std::endl;
+    std::cout << "Time Taken: " << std::fixed << std::setprecision(6) << time << " s" << std::endl;
 
 }
