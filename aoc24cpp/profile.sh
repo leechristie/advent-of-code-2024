@@ -26,14 +26,14 @@ for ((i=1; i<=runs; i++)); do
     echo
     echo >> "OUTPUT"
     echo "Run $i of $runs"
-    echo "Run $i of $runs" >> "OUTPUT"
+    echo "Run $i of $runs" >> "$OUTPUT"
 
     stdout_stderr=$("$EXECUTABLE" $day 2>&1)
     return_code=$?
 
-    echo "$stdout_stderr" >> "OUTPUT"
+    echo "$stdout_stderr"
+    echo "$stdout_stderr" >> "$OUTPUT"
 
-    $EXECUTABLE $day 2>&1 | tee -a "$OUTPUT"
     if [ $return_code -ne 0 ]; then
         rm "$OUTPUT"
         echo
@@ -50,4 +50,4 @@ python --version
 
 python ../profile.py "$OUTPUT"
 
-rm "$OUTPUT"
+rm $OUTPUT

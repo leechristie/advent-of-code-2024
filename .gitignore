@@ -1,5 +1,6 @@
-# C/C++ build directories
+# build directories
 /aoc24c*/cmake-build-*
+/aoc24py/__pycache__
 
 # macOS
 .DS_Store

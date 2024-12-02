@@ -7,9 +7,14 @@
 
 clear
 
-EXECUTABLE="../aoc24c/cmake-build-release/aoc24c"
 OUTPUT="../profile.txt"
 CONDA_ENV="python313"
+
+eval "$(conda shell.bash hook)"
+conda activate "$CONDA_ENV"
+
+which python
+python --version
 
 if [ -f "$OUTPUT" ]; then
     rm "$OUTPUT"
@@ -28,7 +33,7 @@ for ((i=1; i<=runs; i++)); do
     echo "Run $i of $runs"
     echo "Run $i of $runs" >> "$OUTPUT"
 
-    stdout_stderr=$("$EXECUTABLE" $day 2>&1)
+    stdout_stderr=$(python ../aoc24py/main.py "$day" 2>&1)
     return_code=$?
 
     echo "$stdout_stderr"
@@ -41,12 +46,6 @@ for ((i=1; i<=runs; i++)); do
     fi
 
 done
-
-eval "$(conda shell.bash hook)"
-conda activate "$CONDA_ENV"
-
-which python
-python --version
 
 python ../profile.py "$OUTPUT"
 
