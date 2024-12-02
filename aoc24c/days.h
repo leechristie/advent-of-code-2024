@@ -9,5 +9,6 @@
 #define DAYS_H
 
 int day01();
+int day02();
 
 #endif //DAYS_H

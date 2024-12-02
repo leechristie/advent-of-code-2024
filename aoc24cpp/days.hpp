@@ -9,5 +9,6 @@
 #define DAYS_HPP
 
 void day01();
+void day02();
 
 #endif //DAYS_HPP

@@ -20,6 +20,8 @@ int main(const int argc, const char * argv[]) {
 
     if (day == "1")
         day01();
+    else if (day == "2")
+        day02();
     else
         throw std::invalid_argument("invalid day number \"" + day + "\"");
 

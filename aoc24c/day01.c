@@ -13,9 +13,10 @@
 
 static void read_lists(FILE * file, IntList * const left, IntList * const right) {
     int value;
-    while (read_int(file, &value)) {
+    int unused;
+    while (read_int(file, &value, &unused)) {
         IntList_Append(left, value);
-        const bool got_pair = read_int(file, &value);
+        const bool got_pair = read_int(file, &value, &unused);
         if (got_pair)
             IntList_Append(right, value);
         assert(got_pair);  // make sure we got a pair of numbers

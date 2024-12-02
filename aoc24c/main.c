@@ -27,6 +27,10 @@ int main(const int argc, const char * argv[]) {
         return day01();
     }
 
+    if (strcmp(day, "2") == 0) {
+        return day02();
+    }
+
     fprintf(stderr, "invalid day number \"%s\"", day);
     return 1;
 

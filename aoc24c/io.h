@@ -11,21 +11,20 @@
 #include <ctype.h>
 #include <stdio.h>
 
-static bool read_int(FILE * file, int * rv) {
+static bool read_int(FILE * file, int * rv, int * term) {
 
     char current = '\0';
 
     // read until we find the first numeric digit
-    int c;
-    while ((c = fgetc(file)) != EOF) {
-        assert(0 <= c && c <= 127);
-        current = (char) c;
+    while ((*term = fgetc(file)) != EOF) {
+        assert(0 <= *term && *term <= 127);
+        current = (char) *term;
         if (isdigit(current) || current == '-')
             break;
     }
 
     // reached EOF before finding any numeric character
-    if (c == EOF) {
+    if (*term == EOF) {
         return false;
     }
 
@@ -39,9 +38,9 @@ static bool read_int(FILE * file, int * rv) {
     }
 
     // read all remaining digits of the number
-    while ((c = fgetc(file)) != EOF) {
-        assert(0 <= c && c <= 127);
-        current = (char) c;
+    while ((*term = fgetc(file)) != EOF) {
+        assert(0 <= *term && *term <= 127);
+        current = (char) *term;
         if (isdigit(current)) {
             value *= 10;
             value += current - '0';

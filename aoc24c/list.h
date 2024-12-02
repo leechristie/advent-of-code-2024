@@ -57,6 +57,10 @@ static void IntList_Append(IntList * const list, const int value) {
     list->length++;
 }
 
+static void IntList_Clear(IntList * const list) {
+    list->length = 0;
+}
+
 static int compare_int(const void * a, const void * b) {
     return *(int *) a - *(int *) b;
 }
