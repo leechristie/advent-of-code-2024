@@ -24,7 +24,7 @@ read -r runs
 for ((i=1; i<=runs; i++)); do
 
     echo
-    echo >> "OUTPUT"
+    echo >> "$OUTPUT"
     echo "Run $i of $runs"
     echo "Run $i of $runs" >> "$OUTPUT"
 
