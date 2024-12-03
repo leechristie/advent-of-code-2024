@@ -46,8 +46,10 @@ typedef enum MulState {
 
 } MulState;
 
+#define MAX_LENGTH (12)
+
 typedef struct MulStateData {
-    char string[13];
+    char string[MAX_LENGTH + 1];
     size_t length;
     MulState state;
 } MulStateData;
@@ -59,7 +61,7 @@ static void MulStateData_Init(MulStateData * const data) {
 }
 
 static void MulStateData_AppendAndSwitchState(MulStateData * const data, const char character, const MulState state) {
-    assert(data->length <= 12);
+    assert(data->length < MAX_LENGTH);
     data->string[data->length] = character;
     data->length++;
     data->string[data->length] = '\0';
