@@ -46,65 +46,16 @@ typedef enum MulState {
 
 } MulState;
 
-#define MAX_LENGTH (12)
-
 typedef struct MulStateData {
-    char string[MAX_LENGTH + 1];
-    size_t length;
     MulState state;
+    int first;
+    int second;
 } MulStateData;
 
 static void MulStateData_Init(MulStateData * const data) {
-    data->string[0] = '\0';
-    data->length = 0;
     data->state = START;
-}
-
-static void MulStateData_AppendAndSwitchState(MulStateData * const data, const char character, const MulState state) {
-    assert(data->length < MAX_LENGTH);
-    data->string[data->length] = character;
-    data->length++;
-    data->string[data->length] = '\0';
-    data->state = state;
-}
-
-static int parse_int_1_to_3_digits(const char * const string, int i) {
-
-    // first digit
-    assert(isdigit(string[i]));
-    int rv = string[i] - '0';
-
-    // second digit
-    i++;
-    if (!isdigit(string[i]))
-        return rv;
-    rv = 10 * rv + (string[i] - '0');
-
-    // third digit
-    i++;
-    if (!isdigit(string[i]))
-        return rv;
-    rv = 10 * rv + (string[i] - '0');
-
-    // next character after 3rd digit
-    i++;
-    assert(!isdigit(string[i]));
-    return rv;
-
-}
-
-static int MulStateData_Evaluate(const MulStateData * const data) {
-    assert(data->state == MULOXCYE);
-    int i = 0;
-    while (!isdigit(data->string[i]))
-        i++;
-    const int left = parse_int_1_to_3_digits(data->string, i);
-    while (data->string[i] != ',')
-        i++;
-    while (!isdigit(data->string[i]))
-        i++;
-    const int right = parse_int_1_to_3_digits(data->string, i);
-    return left * right;
+    data->first = 0;
+    data->second = 0;
 }
 
 static void MulStateData_Update(MulStateData * const data, const char character) {
@@ -113,62 +64,66 @@ static void MulStateData_Update(MulStateData * const data, const char character)
 
     if (character == 'm') {
         MulStateData_Init(data);
-        MulStateData_AppendAndSwitchState(data, character, M);
         data->state = M;
     } else if (character == 'd') {
         MulStateData_Init(data);
-        MulStateData_AppendAndSwitchState(data, character, D);
         data->state = D;
 
     /* progressing mul states */
 
     } else if (data->state == M && character == 'u') {
-        MulStateData_AppendAndSwitchState(data, character, MU);
+        data->state = MU;
     } else if (data->state == MU && character == 'l') {
-        MulStateData_AppendAndSwitchState(data, character, MUL);
+        data->state = MUL;
     } else if (data->state == MUL && character == '(') {
-        MulStateData_AppendAndSwitchState(data, character, MULO);
+        data->state = MULO;
     } else if (data->state == MULO && isdigit(character)) {
-        MulStateData_AppendAndSwitchState(data, character, MULOX);
+        data->state = MULOX;
+        data->first = character - '0';
     } else if (data->state == MULOX && isdigit(character)) {
-        MulStateData_AppendAndSwitchState(data, character, MULOXX);
+        data->state = MULOXX;
+        data->first = data->first * 10 + character - '0';
     } else if (data->state == MULOXX && isdigit(character)) {
-        MulStateData_AppendAndSwitchState(data, character, MULOXXX);
+        data->state = MULOXXX;
+        data->first = data->first * 10 + character - '0';
     } else if ((data->state == MULOX || data->state == MULOXX || data->state == MULOXXX) && character == ',') {
-        MulStateData_AppendAndSwitchState(data, character, MULOXC);
+        data->state = MULOXC;
     } else if (data->state == MULOXC && isdigit(character)) {
-        MulStateData_AppendAndSwitchState(data, character, MULOXCY);
+        data->state = MULOXCY;
+        data->second = character - '0';
     } else if (data->state == MULOXCY && isdigit(character)) {
-        MulStateData_AppendAndSwitchState(data, character, MULOXCYY);
+        data->state = MULOXCYY;
+        data->second = data->second * 10 + character - '0';
     } else if (data->state == MULOXCYY && isdigit(character)) {
-        MulStateData_AppendAndSwitchState(data, character, MULOXCYYY);
+        data->state = MULOXCYYY;
+        data->second = data->second * 10 + character - '0';
     } else if ((data->state == MULOXCY || data->state == MULOXCYY || data->state == MULOXCYYY) && character == ')') {
-        MulStateData_AppendAndSwitchState(data, character, MULOXCYE);
+        data->state = MULOXCYE;
 
     /* progressing the do or don't parse */
 
     } else if (data->state == D && character == 'o') {
-        MulStateData_AppendAndSwitchState(data, character, DO);
+        data->state = DO;
 
     /* progressing the do parse */
 
     } else if (data->state == DO && character == '(') {
-        MulStateData_AppendAndSwitchState(data, character, DOO);
+        data->state = DOO;
     } else if (data->state == DOO && character == ')') {
-        MulStateData_AppendAndSwitchState(data, character, DOOE);
+        data->state = DOOE;
 
     /* progressing the don't parse */
 
     } else if (data->state == DO && character == 'n') {
-        MulStateData_AppendAndSwitchState(data, character, DON);
+        data->state = DON;
     } else if (data->state == DON && character == '\'') {
-        MulStateData_AppendAndSwitchState(data, character, DONA);
+        data->state = DONA;
     } else if (data->state == DONA && character == 't') {
-        MulStateData_AppendAndSwitchState(data, character, DONAT);
+        data->state = DONAT;
     } else if (data->state == DONAT && character == '(') {
-        MulStateData_AppendAndSwitchState(data, character, DONATO);
+        data->state = DONATO;
     } else if (data->state == DONATO && character == ')') {
-        MulStateData_AppendAndSwitchState(data, character, DONATOE);
+        data->state = DONATOE;
 
     /* resetting to the neutral start state on anything unexpected, no progression, no 'm' or 'd' */
 
@@ -199,7 +154,7 @@ int day03() {
         assert(c >= 0 && c <= 127);
         MulStateData_Update(&data, (char) c);
         if (data.state == MULOXCYE) {
-            const int value = MulStateData_Evaluate(&data);
+            const int value = data.first * data.second;
             part1 += value;
             if (is_enabled)
                 part2 += value;
