@@ -19,10 +19,12 @@ int main(const int argc, const char * argv[]) {
 
     const std::string day {argv[1]};
 
-    if (day == "1") {
+    if (day == "1")
         day01();
-    } else if (day == "2")
+    else if (day == "2")
         day02();
+    else if (day == "3")
+        day03();
     else
         throw std::invalid_argument("invalid day number \"" + day + "\"");
 

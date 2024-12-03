@@ -11,4 +11,5 @@ add_executable(aoc24cpp main.cpp
         day01.cpp
         days.hpp
         day02.cpp
-        timing.hpp)
+        timing.hpp
+        day03.cpp)
