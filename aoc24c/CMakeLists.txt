@@ -14,4 +14,5 @@ add_executable(aoc24c main.c
         io.h
         fatal.h
         day02.c
-        timing.h)
+        timing.h
+        day03.c)

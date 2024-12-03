@@ -10,16 +10,18 @@
 
 #include <ctime>
 
-static volatile clock_t aoc_timer_begin;
-static volatile clock_t aoc_timer_end;
+static volatile timespec aoc_timer_begin;
+static volatile timespec aoc_timer_end;
 
 static void start_timer() {
-    aoc_timer_begin = clock();
+    clock_gettime(CLOCK_MONOTONIC, const_cast<timespec *>(&aoc_timer_begin));
 }
 
 static double stop_timer() {
-    aoc_timer_end = clock();
-    return (double) (aoc_timer_end - aoc_timer_begin) / CLOCKS_PER_SEC;
+    clock_gettime(CLOCK_MONOTONIC, const_cast<timespec *>(&aoc_timer_end));
+    const long long ns = 1000000000LL * (aoc_timer_end.tv_sec - aoc_timer_begin.tv_sec)
+            + aoc_timer_end.tv_nsec - aoc_timer_begin.tv_nsec;
+    return (double) ns / 1000000000LL;
 }
 
 #endif //TIMING_HPP
