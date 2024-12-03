@@ -10,6 +10,7 @@ import sys
 
 from day01 import day01 as day01
 from day02 import day02 as day02
+from day03 import day03 as day03
 
 
 def main() -> None:
@@ -25,6 +26,8 @@ def main() -> None:
         day01()
     elif sys.argv[1] == '2':
         day02()
+    elif sys.argv[1] == '3':
+        day03()
 
 
 if __name__ == "__main__":
