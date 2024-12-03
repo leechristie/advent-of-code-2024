@@ -107,10 +107,6 @@ static int MulStateData_Evaluate(const MulStateData * const data) {
     return left * right;
 }
 
-static void MulStateData_Print(const MulStateData * const data) {
-    printf("data = \"%s\" (length = %lu, state = %d)", data->string, data->length, data->state);
-}
-
 static void MulStateData_Update(MulStateData * const data, const char character) {
 
     /* resetting state to start of an active parse on 'm' or 'd' */
