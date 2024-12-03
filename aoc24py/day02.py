@@ -18,14 +18,23 @@ def reports() -> Iterable[list[int]]:
 
 
 def is_safe(report: list[int]) -> bool:
-    diffs = [second - first for first, second in zip(report, report[1:])]
-    if max(diffs) > 3 or min(diffs) < -3:
-        return False
-    if 0 in diffs:
-        return False
-    signs = [(1 if d > 0 else -1) for d in diffs]
-    if 1 in signs and -1 in signs:
-        return False
+    increase = False
+    decrease = False
+    for i in range(len(report) - 1):
+        j = i + 1
+        first = report[i]
+        second = report[j]
+        diff = second - first
+        if diff == 0 or diff > 3 or diff < -3:
+            return False
+        elif diff > 0:
+            if decrease:
+                return False
+            increase = True
+        else:
+            if increase:
+                return False
+            decrease = True
     return True
 
 
