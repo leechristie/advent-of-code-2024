@@ -8,6 +8,6 @@
 #ifndef FATAL_H
 #define FATAL_H
 
-#define FATAL(message) do {fprintf(stderr, "ABORTING - FATAL ERROR: %s\n", message); exit(1);} while(false);
+#define FATAL_ERROR_EXIT(message) do {fprintf(stderr, "ABORTING - FATAL ERROR: %s\n", message); exit(1);} while(false);
 
 #endif //FATAL_H

@@ -15,4 +15,8 @@ add_executable(aoc24c main.c
         fatal.h
         day02.c
         timing.h
-        day03.c)
+        day03.c
+        day04.c
+        strings.h
+        points.h
+        grid.h)

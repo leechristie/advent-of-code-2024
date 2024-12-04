@@ -24,7 +24,7 @@ typedef struct {
 static void IntList_Init(IntList * const list) {
     list->ptrBuffer = malloc(sizeof(int) * DEFAULT_LIST_SIZE);
     if (list->ptrBuffer == nullptr)
-        FATAL("malloc returned nullptr");
+        FATAL_ERROR_EXIT("malloc returned nullptr");
     list->capacity = DEFAULT_LIST_SIZE;
     list->length = 0;
 }
@@ -42,7 +42,7 @@ static void IntList_Expand(IntList * const list) {
     const size_t new_capacity = list->capacity * 2;
     int * new_memory = realloc(list->ptrBuffer, sizeof(int) * new_capacity);
     if (new_memory == nullptr)
-        FATAL("realloc returned nullptr");
+        FATAL_ERROR_EXIT("realloc returned nullptr");
     list->ptrBuffer = new_memory;
     list->capacity = new_capacity;
 }

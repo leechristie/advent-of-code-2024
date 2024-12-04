@@ -75,7 +75,6 @@ def day04() -> None:
     part2 = 0
 
     grid = CharacterGrid.read_character_grid('input04.txt')
-    print(grid)
 
     for y in range(grid.height):
         for x in range(grid.width):
@@ -86,7 +85,6 @@ def day04() -> None:
                 nw_to_se = grid.characters_stride((y-1, x-1), STRIDE_SOUTHEAST, 3)
                 ne_to_sw = grid.characters_stride((y-1, x+1), STRIDE_SOUTHWEST, 3)
                 if (nw_to_se == 'MAS' or nw_to_se == 'SAM') and (ne_to_sw == 'MAS' or ne_to_sw == 'SAM'):
-                    print(f'found x mas at {y, x}, {nw_to_se = }, {ne_to_sw = }')
                     part2 += 1
 
     stop: float = time.perf_counter()
