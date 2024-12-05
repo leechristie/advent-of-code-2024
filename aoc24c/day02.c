@@ -108,7 +108,6 @@ bool unsafe_report_is_repairable(IntList * report) {
 
 }
 
-
 int day02() {
 
     start_timer();

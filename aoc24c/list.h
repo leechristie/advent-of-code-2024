@@ -14,6 +14,7 @@
 #include <stdlib.h>
 
 #include "fatal.h"
+#include "io.h"
 
 typedef struct {
     int * ptrBuffer;
@@ -69,6 +70,10 @@ static void IntList_Sort(const IntList * const list) {
     qsort(list->ptrBuffer, list->length, sizeof(int), compare_int);
 }
 
+static void IntList_Sort_Custom(const IntList * const list, int (* cmp) (const void * a, const void * b)) {
+    qsort(list->ptrBuffer, list->length, sizeof(int), cmp);
+}
+
 static ssize_t IntList_Sorted_IndexOf(const IntList * const list, const int item) {
     const int * ptrItem = bsearch(&item, list->ptrBuffer, list->length, sizeof(int), compare_int);
     if (ptrItem == nullptr)
@@ -102,6 +107,42 @@ static int IntList_Sorted_CountOf(const IntList * const list, const int item) {
 
     return bound - lower;
 
+}
+
+static void IntList_Print(const char * const variable_name, const IntList * const list) {
+    printf("%s = ", variable_name);
+    if (list == nullptr) {
+        printf("nullptr\n");
+        return;
+    }
+    printf("[");
+    for (size_t i = 0; i < list->length; i++) {
+        assert(list->ptrBuffer != nullptr);
+        if (i != 0)
+            printf(", ");
+        printf("%d", list->ptrBuffer[i]);
+    }
+    printf("] (length = %lu, capacity = %lu, ptr = %p)\n", list->length, list->capacity, (void *) list->ptrBuffer);
+}
+
+static bool IntList_ReadCSV(FILE * const file, IntList * const list) {
+    IntList_Clear(list);
+    int value;
+    int term;
+    while (true) {
+        read_int(file, &value, &term);
+        IntList_Append(list, value);
+        if (term == ',') {
+            // next
+        } else if (term == '\n') {
+            assert(list->length > 0);
+            return true;
+        } else {
+            assert(list->length > 0);
+            assert(term == EOF);
+            return false;
+        }
+    }
 }
 
 #endif //LIST_H

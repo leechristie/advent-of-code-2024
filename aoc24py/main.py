@@ -12,6 +12,7 @@ from day01 import day01 as day01
 from day02 import day02 as day02
 from day03 import day03 as day03
 from day04 import day04 as day04
+from day05 import day05 as day05
 
 
 def main() -> None:
@@ -31,6 +32,8 @@ def main() -> None:
         day03()
     elif sys.argv[1] == '4':
         day04()
+    elif sys.argv[1] == '5':
+        day05()
     else:
         print('invalid daye', file=sys.stderr)
 

@@ -19,4 +19,5 @@ add_executable(aoc24c main.c
         day04.c
         strings.h
         points.h
-        grid.h)
+        grid.h
+        day05.c)
