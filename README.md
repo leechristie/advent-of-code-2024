@@ -4,7 +4,7 @@ My solutions to Eric Wastl's Advent of Code 2024 in C, C++, and Python.
 
 ## Solution Timing
 
-Below I timed the runtime of my solutions on my input files. Differences in timing between languages depend on my level of familiariy with the language, the efficiency of that language itself, and the different method or algorithm I happened to choose when solving that puzzle in that language, and how long I actually spend trying ton make it fast. All timing done on Apple M4 Pro.
+Below I timed the runtime of my solutions on my input files. Differences in timing between languages depend on my level of familiariy with the language, the efficiency of that language itself, and the different method or algorithm I happened to choose when solving that puzzle in that language, and how long I actually spend trying to make it fast. All timing done on Apple M4 Pro.
 
 |                                                                   | [![C](aoc24c/c.png)](/aoc24c/)<br>[C](/aoc24c/) | [![C](aoc24cpp/cpp.png)](/aoc24cpp/)<br>[C++](/aoc24cpp/) | [![Python](aoc24py/py.png)](/aoc24py/)<br>[Python](/aoc24py/) |
 |:------------------------------------------------------------------|:-----------------------------------------------:|:---------------------------------------------------------:|:-------------------------------------------------------------:|
