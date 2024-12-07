@@ -7,64 +7,8 @@
 
 
 import time
-from typing import Optional
 
-
-class CharacterGrid:
-
-    __slots__ = ['data', 'width', 'height']
-
-    def __init__(self, data: list[str]) -> None:
-        self.data = data
-        self.width = len(data[0])
-        self.height = len(data)
-
-    def __getitem__(self, item: tuple[int, int]) -> Optional[str]:
-        y, x = item
-        if 0 <= y < self.height and 0 <= x < self.width:
-            return self.data[y][x]
-        return None
-
-    @staticmethod
-    def read_character_grid(filename: str) -> 'CharacterGrid':
-        lines = []
-        with open(filename) as file:
-            for line in file:
-                line = line.strip()
-                lines.append(line)
-        return CharacterGrid(lines)
-
-    def __str__(self) -> str:
-        rv: str = ''
-        for y in range(self.height):
-            for x in range(self.width):
-                rv += self[(y, x)]
-            rv += '\n'
-        return rv
-
-    def characters_stride(self, origin: tuple[int, int], stride: tuple[int, int], length: int) -> str:
-        rv = ''
-        item = origin
-        for i in range(length):
-            if self[item]:
-                rv += self[item]
-            item = (item[0] + stride[0], item[1] + stride[1])
-        return rv
-
-
-#                    y   x
-STRIDE_NORTH     = (-1,  0)
-STRIDE_NORTHEAST = (-1,  1)
-STRIDE_EAST      = ( 0,  1)
-STRIDE_SOUTHEAST = ( 1,  1)
-STRIDE_SOUTH     = ( 1,  0)
-STRIDE_SOUTHWEST = ( 1, -1)
-STRIDE_WEST      = ( 0, -1)
-STRIDE_NORTHWEST = (-1, -1)
-
-
-ALL_STRIDES = [STRIDE_NORTH, STRIDE_NORTHEAST, STRIDE_EAST, STRIDE_SOUTHEAST,
-               STRIDE_SOUTH, STRIDE_SOUTHWEST, STRIDE_WEST, STRIDE_NORTHWEST]
+from grid import *
 
 
 def day04() -> None:
