@@ -130,6 +130,15 @@ static int CharGrid_CountNonZero(const CharGrid * const grid) {
     return rv;
 }
 
+static int CharGrid_Count(const CharGrid * const grid, const char value) {
+    int rv = 0;
+    for (int y = 0; y < (int) grid->height; y++)
+        for (int x = 0; x < (int) grid->width; x++)
+            if (CharGrid_Get(grid, y, x) == value)
+                rv++;
+    return rv;
+}
+
 static void CharGrid_Print(CharGrid * const grid, const size_t margin, const char default_char) {
     for (int y = - (int) margin; y < (int) grid->height + (int)  margin; y++) {
         for (int x = - (int) margin; x < (int) grid->width + (int) margin; x++) {

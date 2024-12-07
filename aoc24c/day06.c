@@ -46,7 +46,7 @@ static void rotate_clockwise(int * const dy, int * const dx) {
 }
 
 // returns false if the guard left the grid or
-static GuardState step(const CharGrid * const grid, int * const y, int * const x, int * const dy , int * const dx, CharGrid * const tracking) {
+static GuardState step(const CharGrid * const grid, int * const y, int * const x, int * const dy , int * const dx, const CharGrid * const tracking) {
     assert(CharGrid_InBounds(grid, *y, *x));
     assert(CharGrid_Get(grid, *y, *x) == '.');
     const char old_tracking_mark = CharGrid_Get(tracking, *y, *x);
@@ -63,8 +63,9 @@ static GuardState step(const CharGrid * const grid, int * const y, int * const x
         *x = new_x;
         return LEFT_GRID;
     }
-    assert(CharGrid_Get(grid, new_y, new_x) == '#' || CharGrid_Get(grid, new_y, new_x) == '.');
-    if (CharGrid_Get(grid, new_y, new_x) == '#') {
+    assert(CharGrid_Get(grid, new_y, new_x) == '#' || CharGrid_Get(grid, new_y, new_x) == '.' || CharGrid_Get(grid, new_y, new_x) == 'O');
+    const char at_location = CharGrid_Get(grid, new_y, new_x);
+    if (at_location == '#' || at_location == 'O') {
         rotate_clockwise(dy, dx);
     } else {
         *y = new_y;
@@ -74,7 +75,7 @@ static GuardState step(const CharGrid * const grid, int * const y, int * const x
 }
 
 // returns true if the guard got into a loop
-static GuardState trace_guard(const CharGrid * const grid, int y, int x, CharGrid * const tracking) {
+static GuardState trace_guard(const CharGrid * const grid, int y, int x, const CharGrid * const tracking) {
     int dy = -1;
     int dx = 0;
     CharGrid_Clear(tracking);
@@ -86,6 +87,43 @@ static GuardState trace_guard(const CharGrid * const grid, int y, int x, CharGri
     return state;
 }
 
+static void solve(const CharGrid * const grid, const CharGrid * const tracking, const int start_y, const int start_x, int * const part1, int * const part2) {
+
+    // new grid for simulations
+    CharGrid tracking_with_obstacle;
+    CharGrid_Init(&tracking_with_obstacle, grid->height, grid->width);
+
+    for (int y = 0; y < (int) tracking->height; y++) {
+        for (int x = 0; x < (int) tracking->width; x++) {
+            if (CharGrid_Get(tracking, y, x) != 0) {
+
+                // count this square as a location the guard walked on in Part 1
+                (*part1)++;
+
+                // Only check Part 2 if not tje start (we can't put the obstacle on the guard)
+                if (start_y != y || start_x != x) {
+
+                    assert(CharGrid_Get(grid, y, x) == '.');
+                    CharGrid_Set(grid, y, x, 'O');
+                    assert(CharGrid_Count(grid, 'O') == 1);
+                    const GuardState state = trace_guard(grid, start_y, start_x, &tracking_with_obstacle);
+                    CharGrid_Set(grid, y, x, '.');
+                    assert(CharGrid_Count(grid, 'O') == 0);
+                    assert(state == LEFT_GRID || state == CAUGHT_IN_LOOP);
+                    if (state == CAUGHT_IN_LOOP)
+                        (*part2)++;
+
+                }
+
+            }
+        }
+    }
+
+    // cleanup temp grid
+    CharGrid_DeInit(&tracking_with_obstacle);
+
+}
+
 int day06() {
 
     start_timer();
@@ -93,12 +131,14 @@ int day06() {
     int part1 = 0;
     int part2 = 0;
 
-    // load the grid from the input file
+    // open the input file
     FILE * file = fopen("input06.txt", "r");
     if (file == NULL) {
         printf("unable to open input file");
         return 1;
     }
+
+    // load the grid from the input file
     CharGrid grid;
     int y;
     int x;
@@ -113,14 +153,10 @@ int day06() {
     CharGrid_Init(&tracking, grid.height, grid.width);
 
     // track the motions of the guard on the first part - no extra block, expect leaving grid
-    GuardState part1_final_state = trace_guard(&grid, y, x, &tracking);
-    if (part1_final_state != LEFT_GRID)
-        FATAL_ERROR_EXIT("guard did not escape in first run");
+    trace_guard(&grid, y, x, &tracking);
 
-    CharGrid_PrintHex(&tracking, true);  // DEBUGGING
-
-    // anywhere the guard stepped must be counted for part 1
-    part1 = CharGrid_CountNonZero(&tracking);
+    // loop over the trail to solve both parts
+    solve(&grid, &tracking, y, x, &part1, &part2);
 
     // cleanup
     CharGrid_DeInit(&grid);
