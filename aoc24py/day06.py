@@ -57,7 +57,7 @@ def day06() -> None:
     part1 = 0
 
     # load the character grid and remove the guard symbol
-    grid, location = MutableCharacterGrid.read_character_grid('test06.txt',  '^')
+    grid, location = MutableCharacterGrid.read_character_grid('input06.txt',  '^')
     assert (location is not None), 'unable to find ^ in character grid'
     grid[location] = '.'
 

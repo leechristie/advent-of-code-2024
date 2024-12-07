@@ -5,11 +5,10 @@
 // Mastodon: @0x1ac@techhub.social
 // Website:  leechristie.com
 
-#include <assert.h>
 #include <ctype.h>
 #include <stdio.h>
-#include <stdlib.h>
 
+#include "days.h"
 #include "fatal.h"
 #include "list.h"
 #include "timing.h"

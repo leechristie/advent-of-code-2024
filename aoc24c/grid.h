@@ -19,10 +19,59 @@ typedef struct CharGrid {
     size_t width;
 } CharGrid;
 
+static void CharGrid_Init(CharGrid * const grid, const size_t height, const size_t width) {
+    grid->data = (char *) malloc(sizeof(char) * width * height);
+    for (size_t i = 0; i < height * width; i++) {
+        grid->data[i] = 0;
+    }
+    grid->height = height;
+    grid->width = width;
+}
+
+static void CharGrid_Clear(const CharGrid * const grid) {
+    for (size_t i = 0; i < grid->height * grid->width; i++) {
+        grid->data[i] = 0;
+    }
+}
+
 static void CharGrid_DeInit(CharGrid * const grid) {
     free(grid->data);
     grid->height = 0;
     grid->width = 0;
+}
+
+static void CharGrid_FromFile_WithSpecialChar(CharGrid * const grid, FILE * const file, const char special, int * const y, int * const x) {
+    StringBuffer buffer;
+    StringBuffer_Init(&buffer);
+    int current_line_width = 0;
+    int width = 0;
+    int height = 0;
+    *y = -1;
+    *x = -1;
+    char c;
+    while ((c = fgetc(file)) != EOF) {
+        assert(c >= 0 && c < 127);
+        const char current = (char) c;
+        if (current == '\n') {
+            assert(current_line_width > 0);
+            assert(width == 0 || current_line_width == width);
+            width = current_line_width;
+            current_line_width = 0;
+            height++;
+        } else {
+            if (current == special) {
+                assert(*x == -1 && *y == -1);
+                *y = height;
+                *x = current_line_width;
+            }
+            StringBuffer_Append(&buffer, current);
+            current_line_width++;
+        }
+    }
+    grid->data = buffer.data;  // ownership move
+    grid->height = height;
+    grid->width = width;
+    /* don't DeInit StringBuffer */
 }
 
 static void CharGrid_FromFile(CharGrid * const grid, FILE * const file) {
@@ -42,7 +91,6 @@ static void CharGrid_FromFile(CharGrid * const grid, FILE * const file) {
             current_line_width = 0;
             height++;
         } else {
-            assert('A' <= current && current <= 'Z');
             StringBuffer_Append(&buffer, current);
             current_line_width++;
         }
@@ -53,16 +101,59 @@ static void CharGrid_FromFile(CharGrid * const grid, FILE * const file) {
     /* don't DeInit StringBuffer */
 }
 
+static bool CharGrid_InBounds(const CharGrid * grid, int y, int x) {
+    return !(y < 0 || y >= (int) grid->height || x < 0 || x >= (int) grid->width);
+}
+
 static char CharGrid_Get_OrDefault(const CharGrid * const grid, const int y, const int x, const char default_char) {
-    if (y < 0 || y >= (int) grid->height || x < 0 || x >= (int) grid->width)
+    if (!CharGrid_InBounds(grid, y, x))
         return default_char;
     return grid->data[(size_t) x + grid->width * (size_t) y];
+}
+
+static char CharGrid_Get(const CharGrid * const grid, const int y, const int x) {
+    assert(CharGrid_InBounds(grid, y, x));
+    return grid->data[(size_t) x + grid->width * (size_t) y];
+}
+
+static void CharGrid_Set(const CharGrid * const grid, const int y, const int x, const char value) {
+    assert(CharGrid_InBounds(grid, y, x));
+    grid->data[(size_t) x + grid->width * (size_t) y] = value;
+}
+
+static int CharGrid_CountNonZero(const CharGrid * const grid) {
+    int rv = 0;
+    for (int y = 0; y < (int) grid->height; y++)
+        for (int x = 0; x < (int) grid->width; x++)
+            if (CharGrid_Get(grid, y, x) != 0)
+                rv++;
+    return rv;
 }
 
 static void CharGrid_Print(CharGrid * const grid, const size_t margin, const char default_char) {
     for (int y = - (int) margin; y < (int) grid->height + (int)  margin; y++) {
         for (int x = - (int) margin; x < (int) grid->width + (int) margin; x++) {
             putchar(CharGrid_Get_OrDefault(grid, y, x, default_char));
+        }
+        putchar('\n');
+    }
+    printf("height = %lu\n", grid->height);
+    printf("width = %lu\n", grid->width);
+}
+
+static void CharGrid_PrintHex(CharGrid * const grid, const bool hide_zero) {
+    for (int y = 0; y < (int) grid->height; y++) {
+        for (int x = 0; x < (int) grid->width; x++) {
+            if (x != 0) {
+                putchar(' ');
+            }
+            char c = CharGrid_Get_OrDefault(grid, y, x, '\0');
+            assert(c >= 0 && c < 127);
+            if (hide_zero && c == 0) {
+                printf("  ");
+            } else {
+                printf("%02x", c);
+            }
         }
         putchar('\n');
     }
