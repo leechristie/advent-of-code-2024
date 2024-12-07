@@ -47,6 +47,10 @@ int main(const int argc, const char * argv[]) {
         return day06();
     }
 
+    if (strcmp(day, "7") == 0) {
+        return day07();
+    }
+
     fprintf(stderr, "invalid day number \"%s\"", day);
     return 1;
 

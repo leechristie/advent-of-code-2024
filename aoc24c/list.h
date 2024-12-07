@@ -125,14 +125,14 @@ static void IntList_Print(const char * const variable_name, const IntList * cons
     printf("] (length = %lu, capacity = %lu, ptr = %p)\n", list->length, list->capacity, (void *) list->ptrBuffer);
 }
 
-static bool IntList_ReadCSV(FILE * const file, IntList * const list) {
+static bool IntList_ReadCSV_Custom_Sep(FILE * const file, IntList * const list, const char sep) {
     IntList_Clear(list);
     int value;
     int term;
     while (true) {
         read_int(file, &value, &term);
         IntList_Append(list, value);
-        if (term == ',') {
+        if (term == sep) {
             // next
         } else if (term == '\n') {
             assert(list->length > 0);
@@ -143,6 +143,10 @@ static bool IntList_ReadCSV(FILE * const file, IntList * const list) {
             return false;
         }
     }
+}
+
+static bool IntList_ReadCSV(FILE * const file, IntList * const list) {
+    return IntList_ReadCSV_Custom_Sep(file, list, ',');
 }
 
 #endif //LIST_H

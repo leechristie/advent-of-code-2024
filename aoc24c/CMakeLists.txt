@@ -21,4 +21,5 @@ add_executable(aoc24c main.c
         points.h
         grid.h
         day05.c
-        day06.c)
+        day06.c
+        day07.c)

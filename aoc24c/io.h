@@ -55,4 +55,92 @@ static bool read_int(FILE * file, int * rv, int * term) {
 
 }
 
+static bool read_long(FILE * file, long * rv, int * term) {
+
+    char current = '\0';
+
+    // read until we find the first numeric digit
+    while ((*term = fgetc(file)) != EOF) {
+        assert(0 <= *term && *term <= 127);
+        current = (char) *term;
+        if (isdigit(current) || current == '-')
+            break;
+    }
+
+    // reached EOF before finding any numeric character
+    if (*term == EOF) {
+        return false;
+    }
+
+    // set either the value or the negative flag
+    long value = 0;
+    bool negative = false;
+    if (current == '-') {
+        negative = true;
+    } else {
+        value = current - '0';
+    }
+
+    // read all remaining digits of the number
+    while ((*term = fgetc(file)) != EOF) {
+        assert(0 <= *term && *term <= 127);
+        current = (char) *term;
+        if (isdigit(current)) {
+            value *= 10;
+            value += current - '0';
+        } else {
+            break;
+        }
+    }
+
+    // apply negative flag and return
+    *rv = negative ? -value : value;
+    return true;
+
+}
+
+static bool read_long_long(FILE * file, long long * rv, int * term) {
+
+    char current = '\0';
+
+    // read until we find the first numeric digit
+    while ((*term = fgetc(file)) != EOF) {
+        assert(0 <= *term && *term <= 127);
+        current = (char) *term;
+        if (isdigit(current) || current == '-')
+            break;
+    }
+
+    // reached EOF before finding any numeric character
+    if (*term == EOF) {
+        return false;
+    }
+
+    // set either the value or the negative flag
+    long long value = 0;
+    bool negative = false;
+    if (current == '-') {
+        negative = true;
+    } else {
+        value = current - '0';
+    }
+
+    // read all remaining digits of the number
+    while ((*term = fgetc(file)) != EOF) {
+        assert(0 <= *term && *term <= 127);
+        current = (char) *term;
+        if (isdigit(current)) {
+            value *= 10;
+            value += current - '0';
+        } else {
+            break;
+        }
+    }
+
+    // apply negative flag and return
+    *rv = negative ? -value : value;
+    return true;
+
+}
+
 #endif //IO_H
