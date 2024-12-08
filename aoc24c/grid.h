@@ -28,6 +28,15 @@ static void CharGrid_Init(CharGrid * const grid, const size_t height, const size
     grid->width = width;
 }
 
+static void CharGrid_Init_Fill(CharGrid * const grid, const size_t height, const size_t width, const char fill) {
+    grid->data = (char *) malloc(sizeof(char) * width * height);
+    for (size_t i = 0; i < height * width; i++) {
+        grid->data[i] = fill;
+    }
+    grid->height = height;
+    grid->width = width;
+}
+
 static void CharGrid_Clear(const CharGrid * const grid) {
     for (size_t i = 0; i < grid->height * grid->width; i++) {
         grid->data[i] = 0;
@@ -116,9 +125,23 @@ static char CharGrid_Get(const CharGrid * const grid, const int y, const int x) 
     return grid->data[(size_t) x + grid->width * (size_t) y];
 }
 
+static void CharGrid_Index_To_YX(const CharGrid * const grid, const int index, int * const y, int * const x) {
+    *y = index / grid->width;
+    *x = index % grid->width;
+    assert(CharGrid_InBounds(grid, *y, *x));
+}
+
 static void CharGrid_Set(const CharGrid * const grid, const int y, const int x, const char value) {
     assert(CharGrid_InBounds(grid, y, x));
     grid->data[(size_t) x + grid->width * (size_t) y] = value;
+}
+
+static bool CharGrid_Set_OrIgnore(const CharGrid * const grid, const int y, const int x, const char value) {
+    if (CharGrid_InBounds(grid, y, x)) {
+        grid->data[(size_t) x + grid->width * (size_t) y] = value;
+        return true;
+    }
+    return false;
 }
 
 static int CharGrid_CountNonZero(const CharGrid * const grid) {
@@ -137,6 +160,10 @@ static int CharGrid_Count(const CharGrid * const grid, const char value) {
             if (CharGrid_Get(grid, y, x) == value)
                 rv++;
     return rv;
+}
+
+static size_t CharGrid_Area(const CharGrid * const grid) {
+    return grid->height * grid->width;
 }
 
 static void CharGrid_Print(CharGrid * const grid, const size_t margin, const char default_char) {

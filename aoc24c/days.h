@@ -15,5 +15,6 @@ int day04();
 int day05();
 int day06();
 int day07();
+int day08();
 
 #endif //DAYS_H
