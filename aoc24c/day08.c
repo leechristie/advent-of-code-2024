@@ -13,20 +13,12 @@
 #include "list.h"
 #include "timing.h"
 
-const char SYMBOLS[] = {
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
-};
 #define NUM_SYMBOLS (62)
 #define START_INDEX_DIGITS (0)
 #define START_INDEX_LOWER (10)
 #define START_INDEX_UPPER (36)
 
 static size_t symbol_to_index(const char symbol) {
-    if (!(isdigit(symbol) || islower(symbol) || isupper(symbol))) {
-        printf("did you give me '%c'\n", symbol);
-    }
     assert(isdigit(symbol) || islower(symbol) || isupper(symbol));
     if (isdigit(symbol))
         return symbol - '0' + START_INDEX_DIGITS;
