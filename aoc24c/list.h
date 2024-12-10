@@ -58,6 +58,15 @@ static void IntList_Append(IntList * const list, const int value) {
     list->length++;
 }
 
+static void IntList_SmallSet_Add(IntList * const list, const int value) {
+    for (size_t i = 0; i < list->length; i++) {
+        if (list->ptrBuffer[i] == value) {
+            return;;
+        }
+    }
+    IntList_Append(list, value);
+}
+
 static void IntList_Clear(IntList * const list) {
     list->length = 0;
 }

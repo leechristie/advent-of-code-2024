@@ -125,6 +125,11 @@ static char CharGrid_Get(const CharGrid * const grid, const int y, const int x) 
     return grid->data[(size_t) x + grid->width * (size_t) y];
 }
 
+static size_t CharGrid_YX_To_Index(const CharGrid * const grid, const int y, const int x) {
+    assert(CharGrid_InBounds(grid, y, x));
+    return (size_t) x + grid->width * (size_t) y;
+}
+
 static void CharGrid_Index_To_YX(const CharGrid * const grid, const int index, int * const y, int * const x) {
     *y = index / grid->width;
     *x = index % grid->width;
@@ -164,6 +169,24 @@ static int CharGrid_Count(const CharGrid * const grid, const char value) {
 
 static size_t CharGrid_Area(const CharGrid * const grid) {
     return grid->height * grid->width;
+}
+
+static char CharGrid_Get_ByIndex_OrDefault(const CharGrid * const grid, const int index, const char fallback) {
+    int y;
+    int x;
+    CharGrid_Index_To_YX(grid, index, &y, &x);
+    return CharGrid_Get_OrDefault(grid, y, x, fallback);
+}
+
+static ssize_t CharGrid_Index_With_YXOffset(const CharGrid * const grid, const int index, const int dy, const int dx) {
+    int y;
+    int x;
+    CharGrid_Index_To_YX(grid, index, &y, &x);
+    y += dy;
+    x += dx;
+    if (!CharGrid_InBounds(grid, y, x))
+        return -1;
+    return (ssize_t) x + (ssize_t) grid->width * (ssize_t) y;
 }
 
 static void CharGrid_Print(CharGrid * const grid, const size_t margin, const char default_char) {
