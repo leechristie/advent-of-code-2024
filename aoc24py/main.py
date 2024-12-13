@@ -18,6 +18,7 @@ from day07 import day07 as day07
 from day10 import day10 as day10
 from day11 import day11 as day11
 from day12 import day12 as day12
+from day13 import day13 as day13
 
 
 def main() -> None:
@@ -49,6 +50,8 @@ def main() -> None:
         day11()
     elif sys.argv[1] == '12':
         day12()
+    elif sys.argv[1] == '13':
+        day13()
     else:
         print('invalid day', file=sys.stderr)
 
