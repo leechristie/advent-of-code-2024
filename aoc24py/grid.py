@@ -51,7 +51,7 @@ class CharacterGrid:
         return rv
 
 
-class MutableCharacterGrid():
+class MutableCharacterGrid:
 
     __slots__ = ['data', 'width', 'height']
 
@@ -87,6 +87,29 @@ class MutableCharacterGrid():
                 lines.append(line)
         return MutableCharacterGrid(lines), location
 
+    @staticmethod
+    def read_character_grid_with_footer(filename: str, locator: str, translation: dict[str, str]=None) -> tuple['MutableCharacterGrid', tuple[int, int], str]:
+        lines = []
+        location = None
+        footer = ''
+        done_grid = False
+        with open(filename) as file:
+            for y, line in enumerate(file):
+                if not done_grid:
+                    line = list(line.strip())
+                    if translation is not None:
+                        line = MutableCharacterGrid.translate(line, translation)
+                    for x, c in enumerate(line):
+                        if c == locator:
+                            location = (y, x)
+                    if not line:
+                        done_grid = True
+                    else:
+                        lines.append(line)
+                else:
+                    footer += line
+        return MutableCharacterGrid(lines), location, footer.strip()
+
     def __str__(self) -> str:
         rv: str = ''
         for y in range(self.height):
@@ -102,6 +125,47 @@ class MutableCharacterGrid():
             if self[item]:
                 rv += self[item]
             item = (item[0] + stride[0], item[1] + stride[1])
+        return rv
+
+    def print_with_symbol(self, y: int, x: int, char: str) -> None:
+        assert len(char) == 1
+        for current_y in range(self.height):
+            for current_x in range(self.width):
+                print(self[(current_y, current_x)] if (current_y != y or current_x != x) else char, end='')
+            print()
+
+    def push(self, y: int, x: int, dy: int, dx: int, box: str, wall: str) -> bool:
+        current = self[(y, x)]
+        assert current != box and current != wall
+        num_boxes, terminator, (ty, tx) = self.count_boxes(y, x, dy, dx, box, wall)
+        # print(f'pushing into {num_boxes} box(es) after which is {terminator} at {ty, tx}')
+        if num_boxes == 0:
+            return terminator != wall
+        if terminator == wall:
+            return False
+        self[(ty, tx)] = box
+        self[(y + dy, x + dx)] = self[(y, x)]
+        return True
+
+    def count_boxes(self, y: int, x: int, dy: int, dx: int, box: str, wall: str) -> tuple[int, str, tuple[int, int]]:
+        current: str = self[(y, x)]
+        num_boxes: int = 0
+        assert current != box and current != wall
+        y += dy
+        x += dx
+        current = self[(y, x)]
+        while current == box:
+            num_boxes += 1
+            y += dy
+            x += dx
+            current = self[(y, x)]
+        return num_boxes, current, (y, x)
+
+    @staticmethod
+    def translate(line: str, translation: dict[str, str]) -> str:
+        rv = ''
+        for char in line:
+            rv += translation[char]
         return rv
 
 
