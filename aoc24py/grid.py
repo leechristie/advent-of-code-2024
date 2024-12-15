@@ -162,10 +162,11 @@ class MutableCharacterGrid:
         return num_boxes, current, (y, x)
 
     @staticmethod
-    def translate(line: str, translation: dict[str, str]) -> str:
-        rv = ''
+    def translate(line: list[str], translation: dict[str, str]) -> list[str]:
+        rv = []
         for char in line:
-            rv += translation[char]
+            for sub_char in translation[char]:
+                rv.append(sub_char)
         return rv
 
 
