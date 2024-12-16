@@ -169,6 +169,13 @@ class MutableCharacterGrid:
                 rv.append(sub_char)
         return rv
 
+    def find_first(self, target: str) -> Optional[tuple[int, int]]:
+        assert len(target) == 1
+        for y in range(self.height):
+            for x in range(self.width):
+                if target == self[(y, x)]:
+                    return y, x
+
 
 #                    y   x
 STRIDE_NORTH     = (-1,  0)
