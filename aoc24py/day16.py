@@ -222,6 +222,34 @@ def move_is_turn(form_state: State, to_state: State) -> bool:
     return form_state.facing != to_state.facing
 
 
+def is_dead_end(grid: MutableCharacterGrid, y: int, x: int) -> bool:
+    if grid[(y, x)] != '.':
+        return False
+    walls = 0
+    for neighbour in ((y - 1, x), (y, x + 1), (y + 1, x), (y, x - 1)):
+        if grid[neighbour] == '#' or grid[neighbour] == '?':
+            walls += 1
+    return walls > 2
+
+
+def fill_dead_end(grid: MutableCharacterGrid, y: int, x: int) -> None:
+    if not is_dead_end(grid, y, x):
+        return
+    grid[(y, x)] = '?'
+    for ny, nx in ((y - 1, x), (y, x + 1), (y + 1, x), (y, x - 1)):
+        fill_dead_end(grid, ny, nx)
+
+
+def fill_dead_ends(grid: MutableCharacterGrid) -> None:
+    for y in range(grid.height):
+        for x in range(grid.width):
+            fill_dead_end(grid, y, x)
+
+
+START_DY, START_DX = 0, 1
+MOVE_COST, TURN_COST = 1, 1000
+
+
 def day16() -> None:
 
     start: float = time.perf_counter()
@@ -229,35 +257,40 @@ def day16() -> None:
     part1 = None
     part2 = 0
 
-    # grid, _ = MutableCharacterGrid.read_character_grid('tiny16.txt', '\0')
-    # grid, _ = MutableCharacterGrid.read_character_grid('test16.txt', '\0')
-    # grid, _ = MutableCharacterGrid.read_character_grid('second16.txt', '\0')
-    grid, _ = MutableCharacterGrid.read_character_grid('input16.txt', '\0')
+    # grid, _ = MutableCharacterGrid.read_character_grid('tiny16.txt', '\0')  # 4012
+    # grid, _ = MutableCharacterGrid.read_character_grid('test16.txt', '\0')  # 7036
+    # grid, _ = MutableCharacterGrid.read_character_grid('second16.txt', '\0')  # 11048
+    grid, _ = MutableCharacterGrid.read_character_grid('input16.txt', '\0')  # 94444
 
-    start_dy = 0
-    start_dx = 1
+    fill_dead_ends(grid)
 
-    start_state, goal_point = find_start_and_end(grid, 0, 1)
+    start_state, goal_point = find_start_and_end(grid, START_DY, START_DX)
 
-    move_cost = 1
-    turn_cost = 1000
-
-    cost_function = lambda from_state, to_state: compute_move_cost(from_state, to_state, move_cost, turn_cost)
+    cost_function = lambda from_state, to_state: compute_move_cost(from_state, to_state, MOVE_COST, TURN_COST)
 
     path: Optional[list[State]] = a_star(
         start_state,
         lambda state: state.point == goal_point,
-        lambda state: state.point.distance(goal_point) * move_cost,
+        lambda state: state.point.distance(goal_point) * MOVE_COST,
         lambda state: compute_neighbor_list(grid, state, cost_function))
 
     if path:
         path_cost = compute_path_cost(path, cost_function)
         part1 = path_cost
 
+    ############
+    ## PART 2 ##
+    ############
+
+    print(grid)
+
+
+
     stop: float = time.perf_counter()
 
     print("Advent of Code 2024")
     print("Day 16 - Reindeer Maze")
     print(f"Part 1: {part1}")
+    assert (part1 in {4012, 7036, 11048, 94444}), f'{part1 = }, expected one of 4012, 7036, 11048, 94444'
     print(f"Part 2: {part2}")
     print(f"Time Taken: {stop-start:.6f} s")
