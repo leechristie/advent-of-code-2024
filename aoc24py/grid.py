@@ -75,7 +75,7 @@ class MutableCharacterGrid:
         return None
 
     @staticmethod
-    def read_character_grid(filename: str, locator: str) -> tuple['MutableCharacterGrid', tuple[int, int]]:
+    def read_character_grid(filename: str, locator: str='\0') -> tuple['MutableCharacterGrid', tuple[int, int]]:
         lines = []
         location = None
         with open(filename) as file:
