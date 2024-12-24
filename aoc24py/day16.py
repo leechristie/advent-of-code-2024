@@ -319,10 +319,7 @@ def one_of[T](a: Optional[T], b: Optional[T]) -> T:
     return b
 
 
-def to_next_vertex(grid: MutableCharacterGrid, point: Point, facing: Facing, origin: Optional[Point], vertex_lookup: dict[Point, int], called_as:str='top level call') -> Optional[tuple[int, int, int, Facing]]:
-
-    # if origin == Point(3, 3):
-    #     print(f'    to_next_vertex called on point {point} facing {news(facing)}, called as {called_as}')
+def to_next_vertex(grid: MutableCharacterGrid, point: Point, facing: Facing, origin: Optional[Point], vertex_lookup: dict[Point, int]) -> Optional[tuple[int, int, int, Facing]]:
 
     if grid[(point.y, point.x)] == '#':
         return None
@@ -337,11 +334,11 @@ def to_next_vertex(grid: MutableCharacterGrid, point: Point, facing: Facing, ori
 
         facing_counterclockwise90 = facing.counterclockwise90()
         move_counterclockwise90 = point + facing_counterclockwise90
-        rv_counterclockwise90: Optional[tuple[int, int, int, Facing]] = to_next_vertex(grid, move_counterclockwise90, facing_counterclockwise90, None, vertex_lookup, 'counter clockwise 90 turn')
+        rv_counterclockwise90: Optional[tuple[int, int, int, Facing]] = to_next_vertex(grid, move_counterclockwise90, facing_counterclockwise90, None, vertex_lookup)
 
         facing_clockwise90 = facing.clockwise90()
         move_clockwise90 = point + facing_clockwise90
-        rv_clockwise90: Optional[tuple[int, int, int, Facing]] = to_next_vertex(grid, move_clockwise90, facing_clockwise90, None, vertex_lookup, 'clockwise 90 turn')
+        rv_clockwise90: Optional[tuple[int, int, int, Facing]] = to_next_vertex(grid, move_clockwise90, facing_clockwise90, None, vertex_lookup)
 
         if rv_counterclockwise90 is None and rv_clockwise90 is None:
             return None
@@ -352,7 +349,7 @@ def to_next_vertex(grid: MutableCharacterGrid, point: Point, facing: Facing, ori
 
     # if we don't need to turn
     move_forward = point + facing
-    rv_forward: Optional[tuple[int, int, int, Facing]] = to_next_vertex(grid, move_forward, facing, None, vertex_lookup, 'forward step')
+    rv_forward: Optional[tuple[int, int, int, Facing]] = to_next_vertex(grid, move_forward, facing, None, vertex_lookup)
     if rv_forward is None:
         return None
     num_steps, num_turns, destination_id, new_facing = rv_forward
@@ -392,19 +389,6 @@ def reduce_graph(grid: MutableCharacterGrid, vertices: list[Point], vertex_looku
                     assert (vertex, facing) not in rv
                     rv[(vertex, facing)] = vertices[destination], end_facing, cost-1
     return rv
-
-
-# def solve_part1(grid: MutableCharacterGrid,
-#                 start_state: State,
-#                 goal_point: Point):
-#     cost_function = lambda from_state, to_state: compute_move_cost(from_state, to_state, MOVE_COST, TURN_COST)
-#     path: Optional[list[State]] = a_star(
-#         start_state,
-#         lambda state: state.point == goal_point,
-#         lambda state: state.point.distance(goal_point) * MOVE_COST,
-#         lambda state: compute_neighbor_list(grid, state, cost_function))
-#     assert path is not None
-#     return compute_path_cost(path, cost_function)
 
 
 def compute_move_cost_reduced(reduced_graph_neighbours: dict[tuple[Point, Facing], tuple[Point, Facing, int]],
@@ -449,11 +433,61 @@ def solve_part1_fast(reduced_graph_neighbours: dict[tuple[Point, Facing], tuple[
     return compute_path_cost(path, cost_function)
 
 
+def print_path(path: list[State], DEBUG_VERTEX_LOOKUP) -> None:
+    for state in path:
+        print(ppoint(state.point, DEBUG_VERTEX_LOOKUP), news(state.facing))
+    print()
+
+
+def drop_breadcrumbs(path: list[State]):
+    pass
+
+
+def all_paths(reduced_graph_neighbours: dict[tuple[Point, Facing], tuple[Point, Facing, int]],
+              state: State,
+              end: Point,
+              budget: int,
+              cost: Callable[[State, State], int],
+              path: list[State],
+              path_points: list[Point],
+              DEBUG_VERTEX_LOOKUP) -> None:
+
+    if budget < 0:
+        return
+
+    if budget > 0 and state.point == end:
+        raise AssertionError('found shorter path than the given shortest path')
+
+    if budget == 0 and state.point == end:
+        print_path(path, DEBUG_VERTEX_LOOKUP)
+        return
+
+    for neighbour, neighbour_cost in compute_neighbor_list_reduced(reduced_graph_neighbours, state, cost):
+
+        if neighbour in path:
+            continue
+
+        if neighbour.point in path_points:
+            if neighbour.point == (None if len(path_points) < 1 else path_points[-1]):
+                if neighbour.point == (None if len(path_points) < 2 else path_points[-2]):
+                    continue  # seen neighbour before, it's the most recent and the second most recent
+                else:
+                    pass  # seen neighbour before, it's the most recent but not the second most recent
+            else:
+                continue  # seen neighbour before and it's not the most recent in the path
+        else:
+            pass  # never seen this neighbour yet
+
+        path.append(neighbour)
+        path_points.append(neighbour.point)
+        all_paths(reduced_graph_neighbours, neighbour, end, budget - neighbour_cost, cost, path, path_points, DEBUG_VERTEX_LOOKUP)
+        path_points.pop()
+        path.pop()
+
+
 def day16() -> None:
 
     start: float = time.perf_counter()
-
-    part2 = 0
 
     # load the character grid from the input file
     tick: float = time.perf_counter()
@@ -469,6 +503,7 @@ def day16() -> None:
     tick: float = time.perf_counter()
     fill_dead_ends(grid)
     print(f'Fill Dead Ends:      {time.perf_counter()-tick:.6f} s')
+
     # print(grid)
 
     # find the vertices
@@ -476,7 +511,8 @@ def day16() -> None:
     vertices: list[Point] = find_vertices(grid)
     vertex_lookup = invert_list_to_dict(vertices)
     print(f'Find Vertices:       {time.perf_counter()-tick:.6f} s')
-    # print_with_overlay(grid, vertices)
+
+    print_with_overlay(grid, vertices)
 
     # find the start and end, and remove the placeholder symbols from the grid
     tick: float = time.perf_counter()
@@ -503,6 +539,13 @@ def day16() -> None:
 
     # for (from_point, from_facing), (to_point, to_facing, edge_cost) in reduced_graph_neighbours.items():
     #     print(ppoint(from_point, vertex_lookup), news(from_facing), ' --> ', ppoint(to_point, vertex_lookup), news(to_facing), edge_cost)
+
+    tick: float = time.perf_counter()
+    path: list[State] = [start_state]
+    path_points: list[Point] = [start_state.point]
+    cost_function = lambda from_state, to_state: compute_move_cost_reduced(reduced_graph_neighbours, from_state, to_state, TURN_COST)
+    all_paths(reduced_graph_neighbours, start_state, goal_point, part1, cost_function, path, path_points, vertex_lookup)
+    print(f'Finding Bread:       {time.perf_counter()-tick:.6f} s')
 
     part2: int = None
 
