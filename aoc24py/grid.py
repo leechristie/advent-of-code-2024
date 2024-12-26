@@ -176,6 +176,10 @@ class MutableCharacterGrid:
                 if target == self[(y, x)]:
                     return y, x
 
+    @staticmethod
+    def blank(height: int, width: int, character: str) -> 'MutableCharacterGrid':
+        return MutableCharacterGrid([[character] * width for _ in range(height)])
+
 
 #                    y   x
 STRIDE_NORTH     = (-1,  0)

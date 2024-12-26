@@ -5,14 +5,16 @@
 # Mastodon: @0x1ac@techhub.social
 # Website:  leechristie.com
 
+import itertools
 import time
 from typing import TextIO, Optional
 from enum import Enum
-
-from plotly.validators.layout.modebar import AddValidator
+import tqdm.auto as tqdm
 
 
 class Machine:
+
+    __slots__ = ['a', 'b', 'c', 'prog', 'ic', 'length']
 
     def __init__(self, register_a: int, register_b: int, register_c: int, program: tuple[int, ...], instruction_counter: int=0) -> None:
         assert len(program) % 2 == 0
@@ -58,7 +60,13 @@ class Machine:
         opcode: int = self.prog[self.ic]
         return OpCode.lookup(opcode)
 
-    def execute(self, opcode: 'OpCode', literal: int, combo: Optional[int], output: list[int]) -> None:
+    def reinitialize(self, register_a: int) -> None:
+        self.a = register_a
+        self.b = 0
+        self.c = 0
+        self.ic = 0
+
+    def execute(self, opcode: 'OpCode', literal: int, combo: Optional[int], output: list[int], expected: Optional[tuple[int, ...]]=None) -> bool:
 
         # The adv instruction (opcode 0) performs division. The numerator is the value in the A register. The
         # denominator is found by raising 2 to the power of the instruction's combo operand. (So, an operand of 2 would
@@ -66,22 +74,18 @@ class Machine:
         # to an integer and then written to the A register.
         if opcode == OpCode.ADV:
             assert combo is not None
-            numerator: int = self.a
-            denominator: int = 2 ** combo
-            result: int = numerator // denominator
-            self.a = result
+            self.a = self.a >> combo
 
         # The bxl instruction (opcode 1) calculates the bitwise XOR of register B and the instruction's literal operand,
         # then stores the result in register B.
         elif opcode == OpCode.BXL:
-            self.b ^= literal
+            self.b ^= literal % 8
 
         # The bst instruction (opcode 2) calculates the value of its combo operand modulo 8 (thereby keeping only its
         # lowest 3 bits), then writes that value to the B register.
         elif opcode == OpCode.BST:
             assert combo is not None
-            value: int = combo % 8
-            self.b = value
+            self.b = combo % 8
 
         # The jnz instruction (opcode 3) does nothing if the A register is 0. However, if the A register is not zero,
         # it jumps by setting the instruction pointer to the value of its literal operand; if this instruction jumps,
@@ -93,34 +97,35 @@ class Machine:
         # The bxc instruction (opcode 4) calculates the bitwise XOR of register B and register C, then stores the result
         # in register B. (For legacy reasons, this instruction reads an operand but ignores it.)
         elif opcode == OpCode.BXC:
-            self.b ^= self.c
+            self.b = (self.b ^ self.c) % 8
 
         # The out instruction (opcode 5) calculates the value of its combo operand modulo 8, then outputs that value.
         # (If a program outputs multiple values, they are separated by commas.)
         elif opcode == OpCode.OUT:
             assert combo is not None
             output.append(combo % 8)
+            if expected is not None and len(output) > len(expected):
+                return True  # output grew too long
+            index = len(output) - 1
+            if expected is not None and output[index] != expected[index]:
+                return True  # output adding wrong value
 
         # The bdv instruction (opcode 6) works exactly like the adv instruction except that the result is stored in the
         # B register. (The numerator is still read from the A register.)
         elif opcode == OpCode.BDV:
             assert combo is not None
-            numerator: int = self.a
-            denominator: int = 2 ** combo
-            result: int = numerator // denominator
-            self.b = result
+            self.b = self.a >> combo
 
         # The cdv instruction (opcode 7) works exactly like the adv instruction except that the result is stored in the
         # C register. (The numerator is still read from the A register.)
         elif opcode == OpCode.CDV:
             assert combo is not None
-            numerator: int = self.a
-            denominator: int = 2 ** combo
-            result: int = numerator // denominator
-            self.c = result
+            self.c = self.a >> combo
 
         else:
             raise ValueError('Unable to execute!')
+
+        return False
 
     def __str__(self):
         return f'Machine[a={self.a}, b={self.b}, c={self.c}, ic={self.ic}, prog={self.prog}]'
@@ -136,6 +141,20 @@ class Machine:
         for opcode, literal, combo in self:
             self.execute(opcode, literal, combo, output)
         return ','.join([str(value) for value in output])
+
+    def expect(self, output_buffer: list[int], expected: tuple[int, ...]) -> bool:
+        output_buffer.clear()
+        for opcode, literal, combo in self:
+            if self.execute(opcode, literal, combo, output_buffer, expected):
+                return False
+        return len(expected) == len(output_buffer)
+
+    def mine(self) -> int:
+        buffer: list[int] = []
+        for register_a in tqdm.tqdm(itertools.count()):
+            self.reinitialize(register_a)
+            if self.expect(buffer, self.prog):
+                return register_a
 
 
 class OpCode(Enum):
@@ -202,18 +221,21 @@ def day17() -> None:
 
     start: float = time.perf_counter()
 
-    part2: int = 0
-
+    # machine: Machine = read_input('small17.txt')
     # machine: Machine = read_input('example17.txt')
     machine: Machine = read_input('input17.txt')
 
     part1: str = machine.run()
+    part2: int = machine.mine()
 
     stop: float = time.perf_counter()
 
     print("Advent of Code 2024")
     print("Day 17 - Chronospatial Computer")
     print(f"Part 1: {part1}")
-    assert part1 in ('4,6,3,5,6,3,5,2,1,0', '4,6,1,4,2,1,3,1,6')
+    assert part1 in ('5,7,3,0', '4,6,3,5,6,3,5,2,1,0', '4,6,1,4,2,1,3,1,6')
     print(f"Part 2: {part2}")
+    if part1 == '5,7,3,0':
+        assert part2 == 117440
+    # 118,393,894,510 is too low!
     print(f"Time Taken: {stop-start:.6f} s")
