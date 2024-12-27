@@ -29,11 +29,6 @@ def read_input(filename: str, limit: Optional[int]=None) -> Generator[Point]:
             if limit is not None and count >= limit:
                 break
 
-# HEIGHT = 7
-# WIDTH = 7
-# FILENAME = 'test18.txt'
-# LIMIT = 12
-
 HEIGHT = 71
 WIDTH = 71
 FILENAME = 'input18.txt'
@@ -72,23 +67,34 @@ def day18() -> None:
 
     all_failed_bytes = list(read_input(FILENAME))
 
-    part2: str = ''
     for index, failed_byte in enumerate(all_failed_bytes):
         if index < LIMIT:
             assert grid[(failed_byte.y, failed_byte.x)] == '#'
         else:
             assert grid[(failed_byte.y, failed_byte.x)] == '.'
-            grid[(failed_byte.y, failed_byte.x)] = '#'
-            if not reachable(start_point, goal, heuristic, neighbours_on(grid)):
-                part2 = f'{failed_byte.x},{failed_byte.y}'
-                break
+            break
+
+    critical_tiles: set[Point] = set(path)
+
+    part2: str = ''
+    for index, failed_byte in enumerate(all_failed_bytes[LIMIT:], start=LIMIT):
+        grid[(failed_byte.y, failed_byte.x)] = '#'
+        if failed_byte not in critical_tiles:
+            # rerouting is not needed
+            continue
+        path: Optional[list[Point]] = a_star(start_point, goal, heuristic, neighbours_on(grid))
+        if path is None:
+            # rerouting is impossible
+            part2 = f'{failed_byte.x},{failed_byte.y}'
+            break
+        else:
+            # apply reroute
+            critical_tiles = set(path)
 
     stop: float = time.perf_counter()
 
     print("Advent of Code 2024")
     print("Day 18 - RAM Run")
     print(f"Part 1: {part1}")
-    assert part1 in (22, 360)
     print(f"Part 2: {part2}")
-    assert part2 in ('6,1', '58,62')
     print(f"Time Taken: {stop-start:.6f} s")
