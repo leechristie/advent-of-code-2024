@@ -79,8 +79,7 @@ def day18() -> None:
         else:
             assert grid[(failed_byte.y, failed_byte.x)] == '.'
             grid[(failed_byte.y, failed_byte.x)] = '#'
-            path = a_star(start_point, goal, heuristic, neighbours_on(grid))
-            if path is None:
+            if not reachable(start_point, goal, heuristic, neighbours_on(grid)):
                 part2 = f'{failed_byte.x},{failed_byte.y}'
                 break
 
